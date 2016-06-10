@@ -187,7 +187,7 @@ namespace detail
 			switch(Header.Format.bpp)
 			{
 				default:
-					GLI_ASSERT(0);
+					return texture();
 					break;
 				case 8:
 				{
@@ -202,7 +202,7 @@ namespace detail
 					else if(glm::all(glm::equal(Header.Format.Mask, DX.translate(FORMAT_RG3B2_UNORM_PACK8).Mask)))
 						Format = FORMAT_RG3B2_UNORM_PACK8;
 					else
-						GLI_ASSERT(0);
+						return texture();
 					break;
 				}
 				case 16:
@@ -230,7 +230,7 @@ namespace detail
 					else if(glm::all(glm::equal(Header.Format.Mask, DX.translate(FORMAT_R16_UNORM_PACK16).Mask)))
 						Format = FORMAT_R16_UNORM_PACK16;
 					else
-						GLI_ASSERT(0);
+						return texture();
 					break;
 				}
 				case 24:
@@ -240,7 +240,7 @@ namespace detail
 					else if(glm::all(glm::equal(Header.Format.Mask, DX.translate(FORMAT_BGR8_UNORM_PACK8).Mask)))
 						Format = FORMAT_BGR8_UNORM_PACK8;
 					else
-						GLI_ASSERT(0);
+						return texture();
 					break;
 				}
 				case 32:
@@ -260,7 +260,7 @@ namespace detail
 					else if(glm::all(glm::equal(Header.Format.Mask, DX.translate(FORMAT_R32_SFLOAT_PACK32).Mask)))
 						Format = FORMAT_R32_SFLOAT_PACK32;
 					else
-						GLI_ASSERT(0);
+						return texture();
 					break;
 				}
 			}
@@ -273,7 +273,8 @@ namespace detail
 		else if(Header.Format.fourCC == dx::D3DFMT_DX10 || Header.Format.fourCC == dx::D3DFMT_GLI1)
 			Format = DX.find(Header.Format.fourCC, Header10.Format, Header.Format.flags);
 
-		GLI_ASSERT(Format != static_cast<format>(gli::FORMAT_INVALID));
+		if (Format == static_cast<format>(gli::FORMAT_INVALID))
+			return texture();
 
 		size_t const MipMapCount = (Header.Flags & detail::DDSD_MIPMAPCOUNT) ? Header.MipMapLevels : 1;
 		size_t FaceCount = 1;
@@ -290,7 +291,8 @@ namespace detail
 			std::max<texture::size_type>(Header10.ArraySize, 1), FaceCount, MipMapCount);
 
 		std::size_t const SourceSize = Offset + Texture.size();
-		GLI_ASSERT(SourceSize == Size);
+		if (SourceSize != Size)
+			return texture();
 
 		std::memcpy(Texture.data(), Data + Offset, Texture.size());
 
