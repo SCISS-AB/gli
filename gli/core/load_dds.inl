@@ -291,7 +291,10 @@ namespace detail
 			std::max<texture::size_type>(Header10.ArraySize, 1), FaceCount, MipMapCount);
 
 		std::size_t const SourceSize = Offset + Texture.size();
-		if (SourceSize != Size)
+
+		// don't be strict, but allow for some errors in header information as long as data is within resource size we
+		// try to allow it
+		if (SourceSize > Size)
 			return texture();
 
 		std::memcpy(Texture.data(), Data + Offset, Texture.size());
